@@ -12,7 +12,7 @@
  Target Server Version : 150003 (150003)
  File Encoding         : 65001
 
- Date: 01/07/2023 07:51:18
+ Date: 14/07/2023 17:58:19
 */
 
 
@@ -37,9 +37,10 @@ CREATE TABLE "public"."tbl_account" (
   "profile" varchar(255) COLLATE "pg_catalog"."default",
   "state" varchar(255) COLLATE "pg_catalog"."default",
   "connects" int2,
-  "rising_talent" bool,
+  "rising_talent" varchar(255) COLLATE "pg_catalog"."default",
   "created_date" timestamp(0),
-  "last_login_date" timestamp(0)
+  "last_login_date" timestamp(0),
+  "profile_title" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 
@@ -54,11 +55,13 @@ CREATE TABLE "public"."tbl_application" (
   "profile" varchar(255) COLLATE "pg_catalog"."default",
   "proposal_json" json,
   "job_title" varchar(255) COLLATE "pg_catalog"."default",
-  "channel" int4,
   "state" varchar(255) COLLATE "pg_catalog"."default",
   "created_date" timestamp(0),
   "updated_date" timestamp(0),
-  "succeed_date" timestamp(6)
+  "succeed_date" timestamp(6),
+  "channel" int4,
+  "priority" int4,
+  "job_country" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 
@@ -89,6 +92,7 @@ CREATE TABLE "public"."tbl_profile" (
   "channel" int4,
   "script_filename" varchar(255) COLLATE "pg_catalog"."default",
   "require_count" int4,
+  "min_number" int4,
   "max_number" int4,
   "state" varchar(255) COLLATE "pg_catalog"."default"
 )
@@ -109,7 +113,7 @@ ALTER TABLE "public"."tbl_account" ADD CONSTRAINT "tbl_account_pkey" PRIMARY KEY
 -- ----------------------------
 -- Primary Key structure for table tbl_application
 -- ----------------------------
-ALTER TABLE "public"."tbl_application" ADD CONSTRAINT "tbl_queue_pkey" PRIMARY KEY ("email", "job_id");
+ALTER TABLE "public"."tbl_application" ADD CONSTRAINT "tbl_application_pkey" PRIMARY KEY ("email", "job_id");
 
 -- ----------------------------
 -- Primary Key structure for table tbl_message

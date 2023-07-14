@@ -1,2 +1,0 @@
-2023-06-12 06:17:38	cv296@metagon.online	~0186b55f76cb8c3135	https://www.upwork.com/jobs/~0186b55f76cb8c3135	Stock Design Platform (Laravel/MySQL/Vue.js)
-2023-06-12 06:30:58	cv295@metagon.online	~0186b55f76cb8c3135	https://www.upwork.com/jobs/~0186b55f76cb8c3135	Stock Design Platform (Laravel/MySQL/Vue.js)
