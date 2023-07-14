@@ -1,0 +1,42 @@
+2023-06-27 08:44:56	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 08:45:44	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> something-missed: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 08:49:31	http://localhost/api/v2/apply/$/blockchain/~01f4b3ab7e1f1b9f84/
+added application by category: cv4001@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 08:49:43	http://localhost/api/v2/apply/cv4001@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4001@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 09:11:18	http://localhost/api/v2/apply/cv4001@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4001@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:43:00	http://localhost/api/v2/apply/cv4001@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4001@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:43:25	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:50:23	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:58:28	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> logined: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:59:20	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/proposal
+Updated application proposal: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 10:59:24	http://localhost/api/v2/apply/cv4000@metagon.online/~01f4b3ab7e1f1b9f84/state
+Updated application state -> something-missed: cv4000@metagon.online / ~01f4b3ab7e1f1b9f84
+2023-06-27 11:02:54	http://localhost/api/v2/apply/$/blockchain/~013b689128838ce56d/
+Invalid Params: ~013b689128838ce56d / blockchain
+2023-06-27 11:03:22	http://localhost/api/v2/apply/$/blockchain/~013b689128838ce56d/
+added application by category: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:07:11	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/state
+Updated application state -> logined: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:07:26	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/proposal
+Updated application proposal: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:12:24	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Updated application success: cv4000@metagon.online / ~013b689128838ce56d / Innovative AI Developers - build Web App
+2023-06-27 11:19:03	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Already applied: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:35:20	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Already applied: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:35:38	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Already applied: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:36:49	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Already applied: cv4000@metagon.online / ~013b689128838ce56d
+2023-06-27 11:36:55	http://localhost/api/v2/apply/cv4000@metagon.online/~013b689128838ce56d/success
+Already applied: cv4000@metagon.online / ~013b689128838ce56d

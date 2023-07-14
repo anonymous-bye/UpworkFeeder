@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Upwork Feeder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="Keywords" content="Upwork">
+    <meta name="Description" content="Upwork Bidder">
+    <meta name="author" content="valloon91234@gmail.com">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <style>
+        .form-control {
+            color: #000;
+        }
+
+        .form-control::placeholder {
+            color: #108a00a0;
+        }
+
+        .form-control[readonly] {
+            background-color: #f5f5f5;
+        }
+
+        .form-control-sm {
+            height: 2.375rem;
+        }
+
+        .btn.disabled {
+            cursor: not-allowed;
+            opacity: .25;
+        }
+
+        .btn:not(.loading) .spinner-border {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="container-fluid">
+        <br />
+        <div class="form-group">
+            <input id="job-url" class="form-control" type="text"
+                placeholder="Job URL:  https://www.upwork.com/jobs/~0123456789abcdefgh" value="" />
+        </div>
+        <div class="d-flex">
+            <div class="form-group">
+                <input id="profile-symbol" class="form-control text-center px-0" style="width: 2rem;" type="text"
+                    placeholder="SB" value="" maxlength="1" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="email-prefix" class="form-control text-center px-0" style="width: 3.5rem;" type="text"
+                    placeholder="cv0000" tabindex="-1" value="" />
+            </div>
+            <div class="form-group">
+                <input id="email-suffix" class="form-control form-control-sm text-center px-0" style="width: 7.5rem;"
+                    type="text" placeholder="Suffix" tabindex="-1" value="@metagon.online" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="upwork-password" class="form-control form-control-sm text-center px-0" style="width: 5.25rem;"
+                    type="password" placeholder="Password" tabindex="-1" value="qweQWE123!@#`" />
+            </div>
+            <div class="form-group ml-2">
+                <button id="btn-apply" type="button" class="btn btn-primary px-0" style="width: 5rem;">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    Apply
+                </button>
+            </div>
+            <div class="form-group ml-2">
+                <input id="job-id" class="form-control form-control-sm text-center text-secondary px-0"
+                    style="width: 10rem;height: 2.375rem;" type="text" placeholder="Job ID" tabindex="-1" value="" />
+            </div>
+            <div class="form-group ml-auto">
+                <button id="btn-reset" type="button" class="btn btn-info px-0" tabindex="-1" style="width: 4rem;">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    Reset
+                </button>
+            </div>
+            <div class="form-group ml-2">
+                <button id="btn-retry" type="button" class="btn btn-danger px-0" tabindex="-1" style="width: 4rem;">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    Retry
+                </button>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="form-group">
+                <input id="input-channel" class="form-control text-center px-0" style="width: 2rem;" type="text"
+                    placeholder="CH" tabindex="-1" value="" maxlength="1" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="input-priority" class="form-control text-center px-0" style="width: 2rem;" type="text"
+                    placeholder="PR" tabindex="-1" value="9" maxlength="1" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="hourly-rate" class="form-control text-center px-0" style="width: 4.25rem;" type="text"
+                    placeholder="Hourly" tabindex="-1" value="" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="fixed-budget" class="form-control text-center px-0" style="width: 4.25rem;" type="text"
+                    placeholder="Fixed" tabindex="-1" value="" />
+            </div>
+            <div class="form-group ml-2">
+                <input id="connect-boost" class="form-control text-center px-0" style="width: 4.75rem;" type="text"
+                    placeholder="Boost 50" tabindex="-1" value="" />
+            </div>
+            <div class="form-group ml-2">
+                <button id="btn-delete" type="button" class="btn btn-success px-0" tabindex="-1" style="width: 5rem;">
+                    <span class="spinner-border spinner-border-sm"></span>
+                    Delete
+                </button>
+            </div>
+            <div class="form-group d-flex align-items-center ml-2">
+                <label id="label-result" class="text-nowrap small mb-0"></label>
+            </div>
+            <div class="form-group text-nowrap ml-auto mr-1">
+                <a id="link-accounts" href="#" target="_blank">Accounts</a>&emsp;
+                <a id="link-history" href="#" target="_blank">History</a>
+            </div>
+        </div>
+        <div class="form-group">
+            <textarea id="apply-proposal" class="form-control" rows="10" placeholder="Proposal"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 1"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 2"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 3"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 4"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 5"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 6"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 7"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 8"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea class="form-control apply-question" placeholder="Question 9"></textarea>
+        </div>
+        <br />
+    </section>
+
+    <script src="../vendor/jquery/jquery-3.6.3.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
