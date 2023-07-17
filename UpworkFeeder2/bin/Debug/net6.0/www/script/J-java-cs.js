@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "J-java-cs.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Full-Stack | Java/Spring Boot | C#/ASP.NET | Python | Node/React/Web3";

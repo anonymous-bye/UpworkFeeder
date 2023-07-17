@@ -1,11 +1,11 @@
 
 window.signupInfo = {
-    email: `cv${emailNumber}@metagon.online`,
-    // email: `dv${emailNumber}@valv.sbs`,
+    // email: `cv${emailNumber}@metagon.online`,
+    email: `dv${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "shopify",
-    emailUsername: "admin@metagon.online",
-    // emailUsername: "valloonupwork@valv.sbs",
+    // emailUsername: "admin@metagon.online",
+    emailUsername: "valloonupwork@valv.sbs",
     emailPassword: "qweQWE123!@#`",
     firstName: "Gerardo",
     lastName: "Gonzalez",
@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "8-shopify.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Shopify Certified | Ecommerce | WordPress | Node/React | Wix | SEO";

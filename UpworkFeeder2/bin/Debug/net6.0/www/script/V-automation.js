@@ -13,7 +13,7 @@ window.signupInfo = {
 	photoFiilename: "V-automation.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
 	t.profileTitle = "Automation Specialist | Web & Desktop | Web Scraping | Data Processing";

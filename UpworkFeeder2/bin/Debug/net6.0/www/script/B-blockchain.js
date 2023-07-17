@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "B-blockchain.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Blockchain Full-Stack | Web3 | Smart Contract | Solidity | Rust | NFT";

@@ -39,5 +39,8 @@ namespace Valloon.UpworkFeeder2.Models
         [Column("last_login_date")]
         public DateTime? LastLoginDate { get; set; }
 
+        [Column("created_ip")]
+        public string? CreatedIp { get; set; }
+
     }
 }

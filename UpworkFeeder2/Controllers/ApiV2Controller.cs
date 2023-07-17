@@ -55,7 +55,7 @@ namespace Valloon.UpworkFeeder2.Controllers
         }
 
         [Route(HttpVerbs.Post, "/account/{email}/email-verify")]
-        public object GetEmailVerify(string email, [FormField] string login, [FormField] string p)
+        public object PostEmailVerify(string email, [FormField] string login, [FormField] string p)
         {
             try
             {
@@ -74,12 +74,12 @@ namespace Valloon.UpworkFeeder2.Controllers
             catch (Exception ex)
             {
                 AccountLogger.WriteLine($"{email} \t {ex.Message}", ConsoleColor.Red);
-                return new { success = false, error = ex.ToString() };
+                return new { success = false, error = ex.Message };
             }
         }
 
         [Route(HttpVerbs.Post, "/account/{email}/new")]
-        public async Task<object> PostAccountNew(string? email, [FormField] string? password, [FormField] string? profile, [FormField] string? profileTitle, [FormField] string? state)
+        public async Task<object> PostAccountNew(string? email, [FormField] string? password, [FormField] string? profile, [FormField] string? profileTitle, [FormField] string? state, [FormField] string? ip)
         {
             if (email == null || password == null)
             {
@@ -87,6 +87,8 @@ namespace Valloon.UpworkFeeder2.Controllers
                 return new { success = false, error = "Invalid Params" };
             }
             if (string.IsNullOrWhiteSpace(state)) state = null;
+            ip ??= Request.RemoteEndPoint.Address.ToString().Split(":").Last();
+            if (profile != null) AccountChannelDictionary.Remove(profile);
             using var db = new UpworkContext();
             var account = await db.Accounts!.SingleOrDefaultAsync(x => x.Email == email);
             if (account == null)
@@ -98,7 +100,8 @@ namespace Valloon.UpworkFeeder2.Controllers
                     Profile = profile,
                     ProfileTitle = profileTitle,
                     State = state,
-                    CreatedDate = DateTime.UtcNow
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedIp = ip
                 });
             }
             else
@@ -107,6 +110,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 account.Profile = profile;
                 account.ProfileTitle = profileTitle;
                 account.State = state;
+                if (account.CreatedIp == null && ip != null) account.CreatedIp = ip;
                 db.Entry(account).CurrentValues.SetValues(account);
             }
             await db.SaveChangesAsync();
@@ -173,38 +177,75 @@ namespace Valloon.UpworkFeeder2.Controllers
         public async Task GetAccountLive()
         {
             using var db = new UpworkContext();
-            var profileList = await db.Profiles!.OrderBy(x => x.Symbol).ToListAsync();
-            string resultText = $"";
-            foreach (var profile in profileList)
+            //var profileList = await db.Profiles!.OrderBy(x => x.Symbol).ToListAsync();
+            //string resultText = $"";
+            //foreach (var profile in profileList)
+            //{
+            //    var countAllMinMax = await db.Accounts!.Where(x => x.Profile == profile.Id).GroupBy(_ => 1, (_, records) => new
+            //    {
+            //        Count = records.Count(),
+            //        Min = records.Min(x => x.Email),
+            //        Max = records.Max(x => x.Email),
+            //        LastCreated = records.Max(x => x.CreatedDate)
+            //    }).Select(x => new { x.Count, x.Min, x.Max, x.LastCreated }).FirstOrDefaultAsync();
+            //    var countMinMax = await db.Accounts!.Where(x => x.Profile == profile.Id && x.State == null).GroupBy(_ => 1, (_, records) => new
+            //    {
+            //        Count = records.Count(),
+            //        Min = records.Min(x => x.Email),
+            //        Max = records.Max(x => x.Email),
+            //        FirstCreated = records.Min(x => x.CreatedDate)
+            //    }).Select(x => new { x.Count, x.Min, x.Max, x.FirstCreated }).FirstOrDefaultAsync();
+            //    string? spanText = null;
+            //    if (countMinMax != null && countMinMax!.FirstCreated != null)
+            //    {
+            //        var span = DateTime.UtcNow - countMinMax!.FirstCreated!.Value;
+            //        if (span.TotalHours < 24)
+            //            spanText = span.ToString("hh\\:mm\\:ss");
+            //        else
+            //            spanText = $"{span.TotalHours:N0}+";
+            //    }
+            //    int liveCount = countMinMax == null ? 0 : countMinMax.Count;
+            //    int requireCount = profile.RequireCount == null ? 0 : profile.RequireCount.Value;
+            //    var ratio = requireCount == 0 ? 0 : liveCount * 100.0 / requireCount;
+            //    int allCount = countAllMinMax == null ? 0 : countAllMinMax.Count;
+            //    resultText += $"{liveCount} / {requireCount} = {ratio:N2} %\t\t{countAllMinMax?.Min?.Split("@")[0]}  ~  {countAllMinMax?.Max?.Split("@")[0]}\t\t{countMinMax?.Min?.Split("@")[0]}  ~  {countMinMax?.Max?.Split("@")[0]}\t\t[{countMinMax?.FirstCreated:yyyy-MM-dd HH:mm:ss}][{countAllMinMax?.LastCreated:yyyy-MM-dd HH:mm:ss}][{spanText}]\t\t<{profile.Symbol}> {profile.Id} ({profile.Title})    {profile.State}\n\n";
+            //}
+            var profileList = await db.RawSqlQueryAsync(@"
+SELECT * from tbl_profile
+left join (SELECT profile, count(*) all_count, min(email) min_email, max(email) max_email from tbl_account group by profile) tbl_all on tbl_profile.id=tbl_all.profile
+left join (SELECT profile, count(*) live_count, min(email) live_min_email, max(email) live_max_email, min(created_date) min_created_date, max(created_date) max_created_date from tbl_account where state is null group by profile) tbl_live on tbl_profile.id=tbl_live.profile
+left join (SELECT profile, count(*) live24_count from tbl_account where state is null and created_date<NOW() - INTERVAL '24 hours' group by profile) tbl_live24 on tbl_profile.id=tbl_live24.profile
+order by symbol
+",
+                x => new
+                {
+                    Id = UpworkContext.GetValue<string>(x["id"]),
+                    Symbol = UpworkContext.GetValue<string>(x["symbol"]),
+                    Title = UpworkContext.GetValue<string>(x["title"]),
+                    Channel = UpworkContext.GetValue<string>(x["channel"]),
+                    RequireCount = UpworkContext.GetValue<int>(x["require_count"]),
+                    State = UpworkContext.GetValue<string>(x["state"]),
+                    AllCount = UpworkContext.GetValue<int>(x["all_count"]),
+                    MinEmail = UpworkContext.GetValue<string>(x["min_email"]),
+                    MaxEmail = UpworkContext.GetValue<string>(x["max_email"]),
+                    LiveCount = UpworkContext.GetValue<int>(x["live_count"]),
+                    LiveMinEmail = UpworkContext.GetValue<string>(x["live_min_email"]),
+                    LiveMaxEmail = UpworkContext.GetValue<string>(x["live_max_email"]),
+                    MinCreatedDate = UpworkContext.GetValue<DateTime>(x["min_created_date"]),
+                    MaxCreatedDate = UpworkContext.GetValue<DateTime>(x["max_created_date"]),
+                    Live24Count = UpworkContext.GetValue<int>(x["live24_count"]),
+                });
+            if (profileList == null || profileList.Count == 0)
             {
-                var countAllMinMax = await db.Accounts!.Where(x => x.Profile == profile.Id).GroupBy(_ => 1, (_, records) => new
-                {
-                    Count = records.Count(),
-                    Min = records.Min(x => x.Email),
-                    Max = records.Max(x => x.Email),
-                    LastCreated = records.Max(x => x.CreatedDate)
-                }).Select(x => new { x.Count, x.Min, x.Max, x.LastCreated }).FirstOrDefaultAsync();
-                var countMinMax = await db.Accounts!.Where(x => x.Profile == profile.Id && x.State == null).GroupBy(_ => 1, (_, records) => new
-                {
-                    Count = records.Count(),
-                    Min = records.Min(x => x.Email),
-                    Max = records.Max(x => x.Email),
-                    FirstCreated = records.Min(x => x.CreatedDate)
-                }).Select(x => new { x.Count, x.Min, x.Max, x.FirstCreated }).FirstOrDefaultAsync();
-                string? spanText = null;
-                if (countMinMax != null && countMinMax!.FirstCreated != null)
-                {
-                    var span = DateTime.UtcNow - countMinMax!.FirstCreated!.Value;
-                    if (span.TotalHours < 24)
-                        spanText = span.ToString("hh\\:mm\\:ss");
-                    else
-                        spanText = $"{span.TotalHours:N0}+";
-                }
-                int liveCount = countMinMax == null ? 0 : countMinMax.Count;
-                int requireCount = profile.RequireCount == null ? 0 : profile.RequireCount.Value;
-                var ratio = requireCount == 0 ? 0 : liveCount * 100.0 / requireCount;
-                int allCount = countAllMinMax == null ? 0 : countAllMinMax.Count;
-                resultText += $"{liveCount} / {requireCount} = {ratio:N2} %\t\t{countAllMinMax?.Min?.Split("@")[0]}  ~  {countAllMinMax?.Max?.Split("@")[0]}\t\t{countMinMax?.Min?.Split("@")[0]}  ~  {countMinMax?.Max?.Split("@")[0]}\t\t[{countMinMax?.FirstCreated:yyyy-MM-dd HH:mm:ss}][{countAllMinMax?.LastCreated:yyyy-MM-dd HH:mm:ss}][{spanText}]\t\t<{profile.Symbol}> {profile.Id} ({profile.Title})    {profile.State}\n\n";
+                AccountLogger.WriteLine($"None");
+                await HttpContext.SendStringAsync("None");
+                return;
+            }
+            string resultText = $"";
+            foreach (var p in profileList)
+            {
+                var ratio = p.RequireCount == 0 ? 0 : p.LiveCount * 100.0 / p.RequireCount;
+                resultText += $"{p.Live24Count}\t{p.LiveCount} / {p.RequireCount} = {ratio:N2} %\t\t{p.MinEmail?.Split("@")[0]}  ~  {p.MaxEmail?.Split("@")[0]}\t\t{p.LiveMinEmail?.Split("@")[0]}  ~  {p.LiveMaxEmail?.Split("@")[0]}\t\t[{p.MinCreatedDate:yyyy-MM-dd HH:mm:ss}][{p.MaxCreatedDate:yyyy-MM-dd HH:mm:ss}]\t\t<{p.Symbol}> {p.Id} ({p.Title})    {p.State}\n\n";
             }
             await HttpContext.SendStringAsync(resultText);
         }
@@ -267,7 +308,7 @@ namespace Valloon.UpworkFeeder2.Controllers
         }
 
         [Route(HttpVerbs.Get, "/account/need2")]
-        public async Task<object> GetAccountNeed2()
+        public async Task<object> GetAccountNeed2([QueryField] int? channel)
         {
             using var db = new UpworkContext();
             var profileList = await db.RawSqlQueryAsync($"SELECT id,live_count,require_count,live_count*1.0/require_count ratio,min_number,max_number,max_email,script_filename FROM (SELECT tbl_profile.*, (SELECT count(*) live_count from tbl_account where profile=id and state is null) live_count, (SELECT max(email) max_email from tbl_account where tbl_account.profile=id) FROM tbl_profile) tbl_1 WHERE live_count<require_count order by ratio",
@@ -277,7 +318,10 @@ namespace Valloon.UpworkFeeder2.Controllers
                     MinNumber = UpworkContext.GetValue<int>(x["min_number"]),
                     MaxNumber = UpworkContext.GetValue<int>(x["max_number"]),
                     MaxEmail = UpworkContext.GetValue<string>(x["max_email"]),
-                    ScriptFilename = UpworkContext.GetValue<string>(x["script_filename"])
+                    ScriptFilename = UpworkContext.GetValue<string>(x["script_filename"]),
+                    LiveCount = UpworkContext.GetValue<int>(x["live_count"]),
+                    RequireCount = UpworkContext.GetValue<int>(x["require_count"]),
+                    Ratio = UpworkContext.GetValue<double>(x["ratio"]),
                 });
             if (profileList == null || profileList.Count == 0)
             {
@@ -286,12 +330,27 @@ namespace Valloon.UpworkFeeder2.Controllers
             }
             int? nextNumber = null;
             string? scriptFilename = null;
+            object? x = null;
             foreach (var p in profileList)
             {
+                var c = AccountChannelDictionary.GetValueOrDefault(p.Id!);
+                if (c == null || c.Channel == channel || (DateTime.UtcNow - c.Time).TotalMinutes > 5)
+                {
+                    AccountChannelDictionary[p.Id!] = new AccountChannel
+                    {
+                        Channel = channel ?? 0,
+                        Time = DateTime.UtcNow
+                    };
+                }
+                else
+                {
+                    continue;
+                }
                 if (p.MaxEmail == null)
                 {
                     nextNumber = p.MinNumber;
                     scriptFilename = p.ScriptFilename;
+                    x = p;
                     break;
                 }
                 var nextNumberExpected = int.Parse(Regex.Replace(p.MaxEmail, @"[^0-9]+", "")) + 1;
@@ -299,6 +358,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 {
                     nextNumber = Math.Max(p.MinNumber, nextNumberExpected);
                     scriptFilename = p.ScriptFilename;
+                    x = p;
                     break;
                 }
                 AccountLogger.WriteLine($"Full in profile: {p.Id}");
@@ -318,7 +378,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 AccountLogger.WriteLine($"None, maybe full");
                 return new { success = false, error = "None, maybe full" };
             }
-            return new { success = true, nextNumber, scriptFilename };
+            return new { success = true, nextNumber, scriptFilename, x };
         }
 
         [Route(HttpVerbs.Get, "/account/history/{date?}")]
@@ -350,7 +410,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 }
                 else
                     spanText = "\t";
-                resultText = $"{i + 1}\t[{item.CreatedDate:HH:mm:ss}][{spanText}]\t{item.Email?.Split("@")[0]}\t\t<{item.Profile}>\t{item.ProfileTitle}\t<{item.State}>\n" + resultText;
+                resultText = $"{i + 1}\t[{item.CreatedDate:HH:mm:ss}][{spanText}]  {item.CreatedIp}\t{item.Email?.Split("@")[0]}\t\t<{item.Profile}>\t{item.ProfileTitle}\t<{item.State}>\n" + resultText;
             }
             {
                 string? spanText;
@@ -394,7 +454,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 while (true)
                 {
                     var nextAccount = await db.Accounts!.Where(x => x.Profile == profile && x.State == null).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
-                    if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 12)
+                    if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 24)
                     {
                         ApplyLogger.WriteLine($"Email Overflow!: {application.JobId} / {profile}");
                         application.State = "$email-overflow";
@@ -472,7 +532,7 @@ namespace Valloon.UpworkFeeder2.Controllers
             {
                 var item = list[i];
                 if (item.State == Application.STATE_SUCCESS) successCount++;
-                resultText = $"{(item.State == Application.STATE_SUCCESS ? successCount : "")}\t[{item.UpdatedDate ?? item.CreatedDate:HH:mm:ss}][{item.SucceedDate:HH:mm:ss}][{item.SucceedDate - item.CreatedDate:mm\\:ss}]/{item.Priority}\t{item.Email?.Split("@")[0]}\t{item.JobId}\t{item.Profile}/{item.Channel}\t<{item.State}>\t<{item.JobCountry}> {item.JobTitle}\n" + resultText;
+                resultText = $"{(item.State == Application.STATE_SUCCESS ? successCount : "")}\t[{item.UpdatedDate ?? item.CreatedDate:HH:mm:ss}][{item.SucceedDate:HH:mm:ss}][{item.SucceedDate - item.CreatedDate:mm\\:ss}]/{item.Channel}/{item.Priority} \t{item.Email?.Split("@")[0]}\t{item.JobId}\t{item.Profile}/{item.Channel}\t<{item.State}>\t<{item.JobCountry}> {item.JobTitle}\n" + resultText;
             }
             {
                 string? spanText;
@@ -851,7 +911,7 @@ namespace Valloon.UpworkFeeder2.Controllers
             while (true)
             {
                 nextAccount = await db.Accounts!.Where(x => x.Profile == profile && x.State == null).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
-                if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 12)
+                if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 24)
                 {
                     ApplyLogger.WriteLine($"Email Overflow!: {jobId} / {profile}");
                     application.State = "$email-overflow";
@@ -876,6 +936,14 @@ namespace Valloon.UpworkFeeder2.Controllers
             ApplyLogger.WriteLine($"NextEmail by {reason}: {jobId} / {email} -> {nextAccount.Email}");
             return new { success = true, email, newEmail = nextAccount.Email, jobId };
         }
+
+        class AccountChannel
+        {
+            public int Channel { get; set; }
+            public DateTime Time { get; set; }
+        }
+
+        static readonly Dictionary<string, AccountChannel> AccountChannelDictionary = new();
 
     }
 }

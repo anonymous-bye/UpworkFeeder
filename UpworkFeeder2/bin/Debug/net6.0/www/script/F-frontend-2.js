@@ -13,7 +13,7 @@ window.signupInfo = {
 	photoFiilename: "F-frontend-2.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
 	t.profileTitle = "Frontend Developer | Responsive Design | HTML/CSS | Javascript | WebGL";

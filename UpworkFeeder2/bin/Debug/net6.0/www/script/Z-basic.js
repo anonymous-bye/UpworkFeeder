@@ -13,7 +13,7 @@ window.signupInfo = {
     photoFiilename: "Z-basic.jpg",
 };
 
-// setProfile(window.$nuxt.$root.$store.app.store._vm.$data.$$state['mini-profile']);
+// setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
 function setProfile(t) {
     t ??= {};
     t.profileTitle = "Basic Expert | C#/.NET | Python | Java | Auto | Linux | DB | Assembly";

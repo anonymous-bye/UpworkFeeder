@@ -38,19 +38,11 @@ internal class Config
             ServerUrl = iniData["Server"]["Url"] ?? "http://*:2084/";
 
             EmailServerAddress = iniData["EmailServer"]["Host"];
-            try
-            {
-                EmailServerPort = iniData["EmailServer"]["Port"].ToInt() ?? EmailServerPort;
-            }
-            catch { }
+            EmailServerPort = iniData["EmailServer"]["Port"].ToInt() ?? EmailServerPort;
 
             UseProxy = iniData["Socks5Proxy"]["Enabled"] == "1";
             ProxyHost = iniData["Socks5Proxy"]["Host"];
-            try
-            {
-                ProxyPort = iniData["Socks5Proxy"]["Port"].ToInt() ?? EmailServerPort;
-            }
-            catch { }
+            ProxyPort = iniData["Socks5Proxy"]["Port"].ToInt() ?? EmailServerPort;
             ProxyUsername = iniData["Socks5Proxy"]["Username"];
             ProxyPassword = iniData["Socks5Proxy"]["Password"];
             if (UseProxy)
