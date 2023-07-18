@@ -50,7 +50,9 @@ $("#btn-apply").click(function (e) {
                 channel: channel
             },
             success: function (result, status, xhr) {
-                if (result.success) {
+                if (result.success && result.already) {
+                    $("#label-result").text(`Already applied: ${result.profile}`);
+                } else if (result.success) {
                     $("#job-id").val(result.jobId);
                     $("#job-url").addClass("text-danger");
                     if (result.updated)

@@ -51,8 +51,6 @@ static WebServer CreateWebServer(string url)
         .WithStaticFolder("/html", "www/html", false, m => m.WithContentCaching(false))
         .WithStaticFolder("/vendor", "www/vendor", true, m => m.WithContentCaching(true))
         .WithStaticFolder("/script", "www/script", false, m => m.WithContentCaching(false))
-        .WithStaticFolder("/log", "www/log", false, m => m.WithContentCaching(false))
-        .WithStaticFolder("/report", "www/report", false, m => m.WithContentCaching(false))
         //.WithModule(new FileModule("/report", new FileSystemProvider("report", false)))
         .WithWebApi("/api/v2", m => m.WithController<ApiV2Controller>())
         .WithWebApi("/", m => m.WithController<RootController>());

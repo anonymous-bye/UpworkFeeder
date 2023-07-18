@@ -135,6 +135,7 @@ namespace Valloon.UpworkFeeder2.Controllers
                 return new { success = false, error = "Not Exist" };
             }
             account.State = state;
+            account.LastLoginDate = DateTime.UtcNow;
             db.Entry(account).CurrentValues.SetValues(account);
             await db.SaveChangesAsync();
             ApplyLogger.WriteLine($"Updated account state -> {state}: {email}");
@@ -167,6 +168,7 @@ namespace Valloon.UpworkFeeder2.Controllers
             if (connects != null) account.Connects = connects;
             if (risingTalent != null) account.RisingTalent = risingTalent;
             if (profileTitle != null) account.ProfileTitle = profileTitle;
+            account.LastLoginDate = DateTime.UtcNow;
             db.Entry(account).CurrentValues.SetValues(account);
             await db.SaveChangesAsync();
             ApplyLogger.WriteLine($"Updated account: {email}");
@@ -241,7 +243,7 @@ order by symbol
                 await HttpContext.SendStringAsync("None");
                 return;
             }
-            string resultText = $"";
+            string resultText = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}]\n\n";
             foreach (var p in profileList)
             {
                 var ratio = p.RequireCount == 0 ? 0 : p.LiveCount * 100.0 / p.RequireCount;
@@ -334,18 +336,12 @@ order by symbol
             foreach (var p in profileList)
             {
                 var c = AccountChannelDictionary.GetValueOrDefault(p.Id!);
-                if (c == null || c.Channel == channel || (DateTime.UtcNow - c.Time).TotalMinutes > 5)
+                if (c != null && c.Channel != channel && (DateTime.UtcNow - c.Time).TotalMinutes < 5) continue;
+                AccountChannelDictionary[p.Id!] = new AccountChannel
                 {
-                    AccountChannelDictionary[p.Id!] = new AccountChannel
-                    {
-                        Channel = channel ?? 0,
-                        Time = DateTime.UtcNow
-                    };
-                }
-                else
-                {
-                    continue;
-                }
+                    Channel = channel ?? 0,
+                    Time = DateTime.UtcNow
+                };
                 if (p.MaxEmail == null)
                 {
                     nextNumber = p.MinNumber;
@@ -451,20 +447,16 @@ order by symbol
             var profile = application.Profile;
             if (application.Email == $"<{profile}>")
             {
-                while (true)
+                DateTime now = DateTime.UtcNow;
+                Account? nextAccount = null;
+                var accounts = await db.Accounts!.Where(x => x.Profile == profile && (x.State == null || x.State == "connects=10")).OrderBy(x => x.CreatedDate).Take(5).ToListAsync();
+                foreach (var account in accounts)
                 {
-                    var nextAccount = await db.Accounts!.Where(x => x.Profile == profile && x.State == null).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
-                    if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 24)
-                    {
-                        ApplyLogger.WriteLine($"Email Overflow!: {application.JobId} / {profile}");
-                        application.State = "$email-overflow";
-                        db.Entry(application).CurrentValues.SetValues(application);
-                        await db.SaveChangesAsync();
-                        return new { success = false, profile, error = "Email Overflow!" };
-                    }
-                    var lastApplied = await db.Applications!.Where(x => x.Email == nextAccount.Email).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
+                    if (account.State != null && account.LastLoginDate != null && (now - account.LastLoginDate.Value).TotalMinutes < 60) continue;
+                    var lastApplied = await db.Applications!.Where(x => x.Email == account.Email).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
                     if (lastApplied == null)
                     {
+                        nextAccount = account;
                         db.Applications!.Remove(application);
                         await db.SaveChangesAsync();
                         application.Email = nextAccount.Email;
@@ -474,10 +466,18 @@ order by symbol
                         ApplyLogger.WriteLine($"Nexy by profile: {profile} / {application.Email} / {application.JobId}");
                         break;
                     }
-                    ApplyLogger.WriteLine($"next account already used: {nextAccount.Email}");
-                    nextAccount.State = lastApplied.JobId;
-                    db.Entry(nextAccount).CurrentValues.SetValues(nextAccount);
+                    ApplyLogger.WriteLine($"next account already used: {account.Email}");
+                    account.State = lastApplied.JobId;
+                    db.Entry(account).CurrentValues.SetValues(account);
                     await db.SaveChangesAsync();
+                }
+                if (nextAccount == null)
+                {
+                    ApplyLogger.WriteLine($"Email Overflow!: {application.JobId} / {profile}");
+                    application.State = "$email-overflow";
+                    db.Entry(application).CurrentValues.SetValues(application);
+                    await db.SaveChangesAsync();
+                    return new { success = false, profile, error = "Email Overflow!" };
                 }
             }
             return new
@@ -638,12 +638,12 @@ order by symbol
             else if (lastApply.State == Application.STATE_SUCCESS)
             {
                 //ApplyLogger.WriteLine($"Already applied by profile: {profile} / {jobId} / {state}");
-                return new { success = true, already = true, priority = lastApply.Priority, channel = lastApply.Channel };
+                return new { success = true, already = true, profile, priority = lastApply.Priority, channel = lastApply.Channel };
             }
             else if (preventOverwrite != null && preventOverwrite == 1)
             {
                 //ApplyLogger.WriteLine($"Already applied by profile: {profile} / {jobId} / {state}");
-                return new { success = true, already = true, preventOverwrite, priority = lastApply.Priority, channel = lastApply.Channel };
+                return new { success = true, already = true, profile, preventOverwrite, priority = lastApply.Priority, channel = lastApply.Channel };
             }
             else
             {
@@ -841,6 +841,7 @@ order by symbol
                 return new { success = false, error = "Account not found" };
             }
             account.State = jobId;
+            account.LastLoginDate = DateTime.UtcNow;
             db.Entry(account).CurrentValues.SetValues(account);
             await db.SaveChangesAsync();
             ApplyLogger.WriteLine($"Updated application success: {email} / {jobId} / {jobTitle}");
@@ -895,7 +896,9 @@ order by symbol
                 ApplyLogger.WriteLine($"Old account not found: {email} / {jobId}");
                 return new { success = false, error = "Old account not found" };
             }
+            DateTime now = DateTime.UtcNow;
             oldAccount.State = reason;
+            oldAccount.LastLoginDate = now;
             db.Entry(oldAccount).CurrentValues.SetValues(oldAccount);
             await db.SaveChangesAsync();
             application.State = reason;
@@ -907,25 +910,29 @@ order by symbol
                 ApplyLogger.WriteLine($"Profile is null: {email} / {jobId}");
                 return new { success = false, profile, error = "Profile is null" };
             }
-            Account? nextAccount;
-            while (true)
+            Account? nextAccount = null;
+            var accounts = await db.Accounts!.Where(x => x.Profile == profile && (x.State == null || x.State == "connects=10")).OrderBy(x => x.CreatedDate).Take(5).ToListAsync();
+            foreach (var account in accounts)
             {
-                nextAccount = await db.Accounts!.Where(x => x.Profile == profile && x.State == null).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
-                if (nextAccount == null || nextAccount.CreatedDate != null && (DateTime.UtcNow - nextAccount.CreatedDate.Value).TotalHours < 24)
-                {
-                    ApplyLogger.WriteLine($"Email Overflow!: {jobId} / {profile}");
-                    application.State = "$email-overflow";
-                    db.Entry(application).CurrentValues.SetValues(application);
-                    await db.SaveChangesAsync();
-                    return new { success = false, profile, error = "Email Overflow!" };
-                }
-                var lastApplied = await db.Applications!.Where(x => x.Email == nextAccount.Email).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
+                if (account.State != null && account.LastLoginDate != null && (now - account.LastLoginDate.Value).TotalMinutes < 60) continue;
+                var lastApplied = await db.Applications!.Where(x => x.Email == account.Email).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
                 if (lastApplied == null)
+                {
+                    nextAccount = account;
                     break;
-                ApplyLogger.WriteLine($"next account already used: {nextAccount.Email}");
-                nextAccount.State = lastApplied.JobId;
-                db.Entry(nextAccount).CurrentValues.SetValues(nextAccount);
+                }
+                ApplyLogger.WriteLine($"next account already used: {account.Email}");
+                account.State = lastApplied.JobId;
+                db.Entry(account).CurrentValues.SetValues(account);
                 await db.SaveChangesAsync();
+            }
+            if (nextAccount == null)
+            {
+                ApplyLogger.WriteLine($"Email Overflow!: {jobId} / {profile}");
+                application.State = "$email-overflow";
+                db.Entry(application).CurrentValues.SetValues(application);
+                await db.SaveChangesAsync();
+                return new { success = false, profile, error = "Email Overflow!" };
             }
             db.Applications!.Remove(application);
             await db.SaveChangesAsync();
@@ -934,7 +941,13 @@ order by symbol
             await db.Applications!.AddAsync(application);
             await db.SaveChangesAsync();
             ApplyLogger.WriteLine($"NextEmail by {reason}: {jobId} / {email} -> {nextAccount.Email}");
-            return new { success = true, email, newEmail = nextAccount.Email, jobId };
+            return new
+            {
+                success = true,
+                email,
+                newEmail = nextAccount.Email,
+                jobId
+            };
         }
 
         class AccountChannel
