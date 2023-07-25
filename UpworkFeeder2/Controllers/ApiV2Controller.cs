@@ -593,7 +593,7 @@ order by symbol
             using var db = new UpworkContext();
             if (profile.StartsWith("$"))
             {
-                var profileSymbol = profile.Substring(1);
+                var profileSymbol = profile[1..];
                 var profileObject = await db.Profiles!.SingleOrDefaultAsync(x => x.Symbol == profileSymbol);
                 if (profileObject == null)
                 {

@@ -48,7 +48,7 @@
         <div class="d-flex">
             <div class="form-group">
                 <input id="profile-symbol" class="form-control text-center px-0" style="width: 2rem;" type="text"
-                    placeholder="SB" value="" maxlength="1" />
+                    placeholder="#" value="" maxlength="1" title="Profile Symbol (When you input this value, the next values including email and password are not necessary.)" />
             </div>
             <div class="form-group ml-2">
                 <input id="email-prefix" class="form-control text-center px-0" style="width: 3.5rem;" type="text"
@@ -59,11 +59,13 @@
                     type="text" placeholder="Suffix" tabindex="-1" value="@metagon.online" />
             </div>
             <div class="form-group ml-2">
-                <input id="upwork-password" class="form-control form-control-sm text-center px-0" style="width: 5.25rem;"
-                    type="password" placeholder="Password" tabindex="-1" value="qweQWE123!@#`" />
+                <input id="upwork-password" class="form-control form-control-sm text-center px-0"
+                    style="width: 5.25rem;" type="password" placeholder="Password" tabindex="-1"
+                    value="" />
             </div>
             <div class="form-group ml-2">
-                <button id="btn-apply" type="button" class="btn btn-primary px-0" style="width: 5rem;">
+                <button id="btn-apply" type="button" class="btn btn-primary px-0" style="width: 5rem;"
+                    title="(CTRL + ENTER)">
                     <span class="spinner-border spinner-border-sm"></span>
                     Apply
                 </button>
@@ -73,13 +75,15 @@
                     style="width: 10rem;height: 2.375rem;" type="text" placeholder="Job ID" tabindex="-1" value="" />
             </div>
             <div class="form-group ml-auto">
-                <button id="btn-reset" type="button" class="btn btn-info px-0" tabindex="-1" style="width: 4rem;">
+                <button id="btn-reset" type="button" class="btn btn-info px-0" tabindex="-1" style="width: 4rem;"
+                    title="Reset input values in the form.">
                     <span class="spinner-border spinner-border-sm"></span>
                     Reset
                 </button>
             </div>
             <div class="form-group ml-2">
-                <button id="btn-retry" type="button" class="btn btn-danger px-0" tabindex="-1" style="width: 4rem;">
+                <button id="btn-retry" type="button" class="btn btn-danger px-0" tabindex="-1" style="width: 4rem;"
+                    title="Retry all failed apply. Or click with CTRL to clear all pending queue.">
                     <span class="spinner-border spinner-border-sm"></span>
                     Retry
                 </button>
@@ -88,11 +92,11 @@
         <div class="d-flex">
             <div class="form-group">
                 <input id="input-channel" class="form-control text-center px-0" style="width: 2rem;" type="text"
-                    placeholder="CH" tabindex="-1" value="" maxlength="1" />
+                    placeholder="CH" tabindex="-1" value="" maxlength="1" title="Channel" />
             </div>
             <div class="form-group ml-2">
                 <input id="input-priority" class="form-control text-center px-0" style="width: 2rem;" type="text"
-                    placeholder="PR" tabindex="-1" value="9" maxlength="1" />
+                    placeholder="PR" tabindex="-1" value="9" maxlength="1" title="Priority" />
             </div>
             <div class="form-group ml-2">
                 <input id="hourly-rate" class="form-control text-center px-0" style="width: 4.25rem;" type="text"
@@ -104,7 +108,7 @@
             </div>
             <div class="form-group ml-2">
                 <input id="connect-boost" class="form-control text-center px-0" style="width: 4.75rem;" type="text"
-                    placeholder="Boost 50" tabindex="-1" value="" />
+                    placeholder="Boost 50" tabindex="-1" value="" title="Leave empty for default value (50)" />
             </div>
             <div class="form-group ml-2">
                 <button id="btn-delete" type="button" class="btn btn-success px-0" tabindex="-1" style="width: 5rem;">
@@ -116,8 +120,9 @@
                 <label id="label-result" class="text-nowrap small mb-0"></label>
             </div>
             <div class="form-group text-nowrap ml-auto mr-1">
-                <a id="link-accounts" href="#" target="_blank">Accounts</a>&emsp;
-                <a id="link-history" href="#" target="_blank">History</a>
+                <a class="link-backend" href="/api/v2/account/live" target="_blank">Stats</a>&emsp;
+                <a class="link-backend" href="/api/v2/account/history/today" target="_blank">Accounts</a>&emsp;
+                <a class="link-backend" href="/api/v2/application/history/today" target="_blank">history</a>
             </div>
         </div>
         <div class="form-group">

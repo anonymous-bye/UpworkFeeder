@@ -1,10 +1,8 @@
 
 window.signupInfo = {
-    // email: `cv${emailNumber}@metagon.online`,
     email: `dv${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "node-php",
-    // emailUsername: "admin@metagon.online",
     emailUsername: "valloonupwork@valv.sbs",
     emailPassword: "qweQWE123!@#`",
     firstName: "Lukase",

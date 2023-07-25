@@ -3,8 +3,9 @@
 // const SERVER_URL = "http://localhost";
 const SERVER_URL = location.protocol === "file:" ? "http://web.valloon.me" : "";
 
-$("#link-accounts").attr("href", `${SERVER_URL}/api/v2/account/live`);
-$("#link-history").attr("href", `${SERVER_URL}/api/v2/apply/history/today`);
+document.querySelectorAll(".link-backend").forEach(element => {
+    element.href = SERVER_URL + element.getAttribute("href");
+});
 
 $("#btn-apply").click(function (e) {
     if ($(this).hasClass("disabled") || $(this).hasClass("loading")) return;
