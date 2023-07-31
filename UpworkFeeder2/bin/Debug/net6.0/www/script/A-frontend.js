@@ -36,11 +36,11 @@ function setProfile(t) {
             "role": null,
             "city": null,
             "startMonth": "02",
-            "endMonth": null,
+            "endMonth": "04",
             "isCurrentPosition": true,
             "country": "HRV",
             "startYear": "2021",
-            "endYear": null,
+            "endYear": "2023",
             "description": "Improving the quality of front-end code while creating a more efficient and sustainable workflow in Agile methodology. My assignments were following coding standards, creating documentation and style guides, dependency management, building systems, performance optimization, research and design of solutions.",
             "index": -1
         },
@@ -55,7 +55,7 @@ function setProfile(t) {
             "country": "HRV",
             "startYear": "2017",
             "endYear": "2020",
-            "description": "HTML, CSS, Responsive Design, Heroku",
+            "description": "- HTML, CSS, Responsive Design, Heroku\n- Tailwind CSS, React, Vue, Javascript, Typescript\n- Digital design (User interface design (UI))\n- Information architecture of new products & websites\n- Creation of concepts, Wireframes and Prototypes",
             "index": 2
         },
         {
@@ -82,7 +82,7 @@ function setProfile(t) {
             "country": "HRV",
             "startYear": "2013",
             "endYear": "2015",
-            "description": "User Interface & Interaction Designer\n- Webflow, Wix\n- Tailwind CSS, React, Vue, Svelte, Javascript, Typescript\n- Digital design (User interface design (UI))\n- Information architecture of new products & websites\n- Creation of concepts, Wireframes and Prototypes\n- Frontend development ( HTML, CSS, JavaScript )\n- Illustration / Infographics",
+            "description": "User Interface & Interaction Designer",
             "index": 0
         }
     ];

@@ -313,7 +313,7 @@ order by symbol
         public async Task<object> GetAccountNeed2([QueryField] int? channel)
         {
             using var db = new UpworkContext();
-            var profileList = await db.RawSqlQueryAsync($"SELECT id,live_count,require_count,live_count*1.0/require_count ratio,min_number,max_number,max_email,script_filename FROM (SELECT tbl_profile.*, (SELECT count(*) live_count from tbl_account where profile=id and state is null) live_count, (SELECT max(email) max_email from tbl_account where tbl_account.profile=id) FROM tbl_profile) tbl_1 WHERE live_count<require_count order by ratio",
+            var profileList = await db.RawSqlQueryAsync($"SELECT id,live_count,require_count,live_count*1.0/require_count ratio,min_number,max_number,max_email,script_filename,state FROM (SELECT tbl_profile.*, (SELECT count(*) live_count from tbl_account where profile=id and state is null) live_count, (SELECT max(email) max_email from tbl_account where tbl_account.profile=id) FROM tbl_profile) tbl_1 WHERE live_count<require_count order by ratio",
                 x => new
                 {
                     Id = UpworkContext.GetValue<string>(x["id"]),
@@ -321,6 +321,7 @@ order by symbol
                     MaxNumber = UpworkContext.GetValue<int>(x["max_number"]),
                     MaxEmail = UpworkContext.GetValue<string>(x["max_email"]),
                     ScriptFilename = UpworkContext.GetValue<string>(x["script_filename"]),
+                    State = UpworkContext.GetValue<string>(x["state"]),
                     LiveCount = UpworkContext.GetValue<int>(x["live_count"]),
                     RequireCount = UpworkContext.GetValue<int>(x["require_count"]),
                     Ratio = UpworkContext.GetValue<double>(x["ratio"]),
@@ -335,6 +336,11 @@ order by symbol
             object? x = null;
             foreach (var p in profileList)
             {
+                if (p.State != null && p.State.StartsWith("!!"))
+                {
+                    //ApplyLogger.WriteLine($"Profile Disabled: {p.Id}");
+                    continue;
+                }
                 var c = AccountChannelDictionary.GetValueOrDefault(p.Id!);
                 if (c != null && c.Channel != channel && (DateTime.UtcNow - c.Time).TotalMinutes < 5) continue;
                 AccountChannelDictionary[p.Id!] = new AccountChannel
@@ -362,7 +368,6 @@ order by symbol
                 if (profileRecord == null)
                 {
                     ApplyLogger.WriteLine($"Profile Not Exist: {p.Id}");
-                    await HttpContext.SendStringAsync($"Profile Not Exist: {p.Id}");
                     continue;
                 }
                 profileRecord.State = "full";
@@ -374,6 +379,7 @@ order by symbol
                 AccountLogger.WriteLine($"None, maybe full");
                 return new { success = false, error = "None, maybe full" };
             }
+            AccountLogger.WriteLine($"Need from channel<{channel}>  {nextNumber} / {scriptFilename}");
             return new { success = true, nextNumber, scriptFilename, x };
         }
 
@@ -600,6 +606,11 @@ order by symbol
                     ApplyLogger.WriteLine($"Profile Not Exist: {profile} / {jobId} / {state}");
                     return new { success = false, error = $"Profile Not Exist: {profile}" };
                 }
+                if (profileObject.State != null && profileObject.State.StartsWith("!"))
+                {
+                    ApplyLogger.WriteLine($"Profile Disabled: {profile} / {jobId} / {state}");
+                    return new { success = false, error = $"Profile Disabled: {profile} / {profileObject.State}" };
+                }
                 profile = profileObject.Id;
                 channel ??= profileObject.Channel;
             }
@@ -610,6 +621,11 @@ order by symbol
                 {
                     ApplyLogger.WriteLine($"Profile Not Exist: {profile} / {jobId} / {state}");
                     return new { success = false, error = $"Profile Not Exist: {profile}" };
+                }
+                if (profileObject.State != null && profileObject.State.StartsWith("!"))
+                {
+                    ApplyLogger.WriteLine($"Profile Disabled: {profile} / {jobId} / {state}");
+                    return new { success = false, error = $"Profile Disabled: {profile} / {profileObject.State}" };
                 }
                 channel ??= profileObject.Channel;
             }
