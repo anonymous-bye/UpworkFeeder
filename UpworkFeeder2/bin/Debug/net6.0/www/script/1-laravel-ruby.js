@@ -1,14 +1,12 @@
 
 window.signupInfo = {
-    email: `dv${emailNumber}@valv.sbs`,
+    email: `gg${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "laravel-ruby",
-    emailUsername: "valloonupwork@valv.sbs",
-    emailPassword: "qweQWE123!@#`",
     firstName: "Haris",
     lastName: "Dzafic",
     country: "Bosnia",
-    photoFiilename: "1-laravel-ruby.jpg",
+    photoFilename: "1-laravel-ruby.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);

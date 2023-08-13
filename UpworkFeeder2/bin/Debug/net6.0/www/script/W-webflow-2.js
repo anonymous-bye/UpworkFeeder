@@ -1,16 +1,12 @@
 
 window.signupInfo = {
-    email: `cvw${emailNumber}@metagon.online`,
-    // email: `dvw${emailNumber}@valv.sbs`,
+    email: `ggw${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "webflow-2",
-    emailUsername: "admin@metagon.online",
-    // emailUsername: "valloonupwork@valv.sbs",
-    emailPassword: "qweQWE123!@#`",
     firstName: "Daniel",
     lastName: "Cardoso",
     country: "Brazil",
-    photoFiilename: "W-webflow-2.jpg",
+    photoFilename: "W-webflow-2.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);

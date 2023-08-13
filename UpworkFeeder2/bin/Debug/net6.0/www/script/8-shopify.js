@@ -1,14 +1,12 @@
 
 window.signupInfo = {
-    email: `dv${emailNumber}@valv.sbs`,
+    email: `gg${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "shopify",
-    emailUsername: "valloonupwork@valv.sbs",
-    emailPassword: "qweQWE123!@#`",
     firstName: "Gerardo",
     lastName: "Gonzalez",
     country: "Colombia",
-    photoFiilename: "8-shopify.jpg",
+    photoFilename: "8-shopify.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);

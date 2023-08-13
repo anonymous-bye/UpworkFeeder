@@ -31,9 +31,6 @@ else
 }
 
 System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(Config).TypeHandle);
-//var x = EmailReader.GetEmailVerifyUrl("admin@metagon.online", "qweQWE123!@#`", "cv2983@metagon.online"); return;
-//EmailReader.GetMessages("admin@metagon.online", "qweQWE123!@#`", null, out int failedCount);
-
 using var server = CreateWebServer(Config.HttpListenUrl!);
 var task = server.RunAsync();
 Console.WriteLine($"Listening on {Config.HttpListenUrl}");

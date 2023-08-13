@@ -1,14 +1,12 @@
 
 window.signupInfo = {
-    email: `dv${emailNumber}@valv.sbs`,
+    email: `gg${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "wp-django",
-    emailUsername: "valloonupwork@valv.sbs",
-    emailPassword: "qweQWE123!@#`",
     firstName: "Pahana",
     lastName: "Choctaw",
     country: "Mexico",
-    photoFiilename: "2-wp-django.jpg",
+    photoFilename: "2-wp-django.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);

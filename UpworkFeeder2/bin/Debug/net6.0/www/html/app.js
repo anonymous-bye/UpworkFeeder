@@ -1,7 +1,7 @@
 "use strict";
 
 // const SERVER_URL = "http://localhost";
-const SERVER_URL = location.protocol === "file:" ? "http://web.valloon.me" : "";
+const SERVER_URL = location.protocol === "file:" ? "http://api.valv.sbs" : "";
 
 document.querySelectorAll(".link-backend").forEach(element => {
     element.href = SERVER_URL + element.getAttribute("href");

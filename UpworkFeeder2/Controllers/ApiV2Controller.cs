@@ -54,12 +54,12 @@ namespace Valloon.UpworkFeeder2.Controllers
             return await db.Accounts!.Where(x => x.Connects == null).OrderBy(x => x.Email).FirstOrDefaultAsync();
         }
 
-        [Route(HttpVerbs.Post, "/account/{email}/email-verify")]
-        public object PostEmailVerify(string email, [FormField] string login, [FormField] string p)
+        [Route(HttpVerbs.Any, "/account/{email}/email-verify")]
+        public async Task<object> AnyEmailVerify(string email)
         {
             try
             {
-                var verifyUrl = EmailReader.GetEmailVerifyUrl(login, p, email);
+                var verifyUrl = await EmailReader.GetEmailVerifyUrlFromGmail(email);
                 if (verifyUrl == null)
                 {
                     AccountLogger.WriteLine($"{email} \t <Email not received>", ConsoleColor.DarkYellow);
@@ -355,6 +355,22 @@ order by symbol
                     x = p;
                     break;
                 }
+                if (p.State != null && p.State.StartsWith("#"))
+                {
+                    nextNumber = int.Parse(p.State[1..]);
+                    scriptFilename = p.ScriptFilename;
+                    x = p;
+                    var profileRecord = await db.Profiles!.SingleOrDefaultAsync(x => x.Id == p.Id);
+                    if (profileRecord == null)
+                    {
+                        ApplyLogger.WriteLine($"Profile Not Exist: {p.Id}");
+                        continue;
+                    }
+                    profileRecord.State = null;
+                    db.Entry(profileRecord).CurrentValues.SetValues(profileRecord);
+                    await db.SaveChangesAsync();
+                    break;
+                }
                 var nextNumberExpected = int.Parse(Regex.Replace(p.MaxEmail, @"[^0-9]+", "")) + 1;
                 if (nextNumberExpected <= p.MaxNumber)
                 {
@@ -363,16 +379,18 @@ order by symbol
                     x = p;
                     break;
                 }
-                AccountLogger.WriteLine($"Full in profile: {p.Id}");
-                var profileRecord = await db.Profiles!.SingleOrDefaultAsync(x => x.Id == p.Id);
-                if (profileRecord == null)
                 {
-                    ApplyLogger.WriteLine($"Profile Not Exist: {p.Id}");
-                    continue;
+                    AccountLogger.WriteLine($"Full in profile: {p.Id}");
+                    var profileRecord = await db.Profiles!.SingleOrDefaultAsync(x => x.Id == p.Id);
+                    if (profileRecord == null)
+                    {
+                        ApplyLogger.WriteLine($"Profile Not Exist: {p.Id}");
+                        continue;
+                    }
+                    profileRecord.State = "full";
+                    db.Entry(profileRecord).CurrentValues.SetValues(profileRecord);
+                    await db.SaveChangesAsync();
                 }
-                profileRecord.State = "full";
-                db.Entry(profileRecord).CurrentValues.SetValues(profileRecord);
-                await db.SaveChangesAsync();
             }
             if (nextNumber == null || scriptFilename == null)
             {
@@ -455,10 +473,11 @@ order by symbol
             {
                 DateTime now = DateTime.UtcNow;
                 Account? nextAccount = null;
-                var accounts = await db.Accounts!.Where(x => x.Profile == profile && (x.State == null || x.State == "connects=10")).OrderBy(x => x.CreatedDate).Take(5).ToListAsync();
+                //var accounts = await db.Accounts!.Where(x => x.Profile == profile && (x.State == null || x.State == "connects=10")).OrderBy(x => x.CreatedDate).Take(5).ToListAsync();
+                var accounts = await db.Accounts!.Where(x => x.Profile == profile && x.State == null).OrderBy(x => x.CreatedDate).Take(5).ToListAsync();
                 foreach (var account in accounts)
                 {
-                    if (account.State != null && account.LastLoginDate != null && (now - account.LastLoginDate.Value).TotalMinutes < 60) continue;
+                    //if (account.State != null && account.LastLoginDate != null && (now - account.LastLoginDate.Value).TotalMinutes < 60) continue;
                     var lastApplied = await db.Applications!.Where(x => x.Email == account.Email).OrderBy(x => x.CreatedDate).FirstOrDefaultAsync();
                     if (lastApplied == null)
                     {

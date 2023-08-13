@@ -1,16 +1,12 @@
 
 window.signupInfo = {
-    email: `cva${emailNumber}@metagon.online`,
-    // email: `dva${emailNumber}@valv.sbs`,
+    email: `gga${emailNumber}@valv.sbs`,
     password: "qweQWE123!@#`",
     category: "frontend",
-    emailUsername: "admin@metagon.online",
-    // emailUsername: "valloonupwork@valv.sbs",
-    emailPassword: "qweQWE123!@#`",
     firstName: "Eduard",
     lastName: "Ljubanovic",
     country: "Croatia",
-    photoFiilename: "A-frontend.jpg",
+    photoFilename: "A-frontend.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);
@@ -18,10 +14,10 @@ function setProfile(t) {
     t ??= {};
     t.profileTitle = "Frontend Developer | HTML | CSS | Webflow | Responsive Design | Canvas";
     t.address = {
-        "street": "Zagrebacka 21",
-        "state": "Zadarska",
-        "city": "Biograd na Moru",
-        "zip": "23210",
+        "street": "Albrechtova 22",
+        "state": "City of Zagreb",
+        "city": "Zagreb",
+        "zip": "10000",
         "additionalInfo": null,
         "country": "Croatia",
         "address": null

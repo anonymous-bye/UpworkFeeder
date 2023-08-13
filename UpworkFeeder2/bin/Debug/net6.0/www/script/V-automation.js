@@ -1,16 +1,12 @@
 
 window.signupInfo = {
-	email: `cvv${emailNumber}@metagon.online`,
-	// email: `dvv${emailNumber}@valv.sbs`,
+	email: `ggv${emailNumber}@valv.sbs`,
 	password: "qweQWE123!@#`",
 	category: "automation",
-    emailUsername: "admin@metagon.online",
-	// emailUsername: "valloonupwork@valv.sbs",
-	emailPassword: "qweQWE123!@#`",
 	firstName: "Toran",
 	lastName: "Sancakli",
 	country: "Turkey",
-	photoFiilename: "V-automation.jpg",
+	photoFilename: "V-automation.jpg",
 };
 
 // setProfile(window.$nuxt.$store._vm.$data.$$state['mini-profile']);

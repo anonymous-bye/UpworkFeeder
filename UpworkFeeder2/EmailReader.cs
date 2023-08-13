@@ -6,6 +6,9 @@ using Valloon.UpworkFeeder2.Models;
 using HtmlAgilityPack;
 using Fizzler.Systems.HtmlAgilityPack;
 using System.Globalization;
+using MailKit.Net.Proxy;
+using System.Diagnostics;
+using System.Threading.Channels;
 
 /**
  * @author Valloon Present
@@ -13,6 +16,40 @@ using System.Globalization;
  */
 internal class EmailReader
 {
+    public async static Task<string?> GetEmailVerifyUrlFromGmail(string receiver)
+    {
+        var prefix = receiver.Split('@').Last().ToUpper();
+        var gmailAddress = DotNetEnv.Env.GetString($"{prefix}_GMAIL");
+        var gmailPassword = DotNetEnv.Env.GetString($"{prefix}_PASSWORD");
+        if (gmailAddress == null || gmailPassword == null) throw new Exception("Gmail setting invalid.");
+        using var client = new ImapClient();
+        if (Debugger.IsAttached)
+            client.ProxyClient = new Socks5Client("us.upwork.com", 8545);
+        await client.ConnectAsync("imap.gmail.com", 993, SecureSocketOptions.SslOnConnect); // Connect using SSL/TLS
+        client.AuthenticationMechanisms.Remove("XOAUTH2");
+        await client.AuthenticateAsync(gmailAddress, gmailPassword);
+        //await client.Inbox.OpenAsync(FolderAccess.ReadOnly);
+        var allMailFolder = await client.GetFolderAsync("[Gmail]/All Mail");
+        await allMailFolder.OpenAsync(FolderAccess.ReadOnly);
+        var query = SearchQuery.ToContains(receiver).And(SearchQuery.FromContains("donotreply@upwork.com")).And(SearchQuery.SubjectContains("Verify your email address"));
+        var results = await allMailFolder.SearchAsync(query);
+        string? resultUrl = null;
+        if (results.Count > 0)
+        {
+            var message = await allMailFolder.GetMessageAsync(results[0]);
+            var body = message.HtmlBody;
+            var startIndex = body.IndexOf("href=\"https://www.upwork.com/nx/signup/verify-email/token/");
+            if (startIndex > -1)
+            {
+                startIndex += 6;
+                var endIndex = body.IndexOf("\"", startIndex);
+                resultUrl = body[startIndex..endIndex];
+            }
+        }
+        client.Disconnect(true);
+        return resultUrl;
+    }
+
     public static string? GetEmailVerifyUrl(string username, string password, string receiver)
     {
         var prefix = receiver.Split('@').Last().ToUpper();
